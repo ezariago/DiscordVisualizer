@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Discord Wrapped</title>
+  <link rel="stylesheet" href="style.css" />
+  <script>
+    // Tailwind config: expose our CSS vars as Tailwind colors
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'discord-bg':      '#0e0f13',
+            'discord-surface': '#1a1c23',
+            'discord-elevated':'#222530',
+            'discord-border':  '#2e3140',
+            'discord-text':    '#dcddde',
+            'discord-muted':   '#8b8fa8',
+            'blurple':         '#5865F2',
+          }
+        }
+      }
+    }
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+  <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+</head>
+<body class="bg-discord-bg text-discord-text min-h-screen">
+
+  <!-- ═══════════════════════ UPLOAD OVERLAY ═══════════════════════ -->
+  <div id="upload-overlay" class="fixed inset-0 z-50 flex items-center justify-center bg-discord-bg">
+    <div class="upload-card text-center max-w-md w-full mx-4">
+      <div class="upload-icon mb-6">
+        <svg width="80" height="80" viewBox="0 0 80 80" class="mx-auto">
+          <circle cx="40" cy="40" r="40" fill="#5865F2" opacity="0.15"/>
+          <circle cx="40" cy="40" r="28" fill="#5865F2" opacity="0.25"/>
+          <path d="M40 22 L40 50 M28 38 L40 26 L52 38" stroke="#5865F2" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          <rect x="24" y="52" width="32" height="4" rx="2" fill="#5865F2"/>
+        </svg>
+      </div>
+      <h1 class="text-3xl font-black text-white mb-2">Discord Wrapped</h1>
+      <p class="text-discord-muted mb-6">Upload your <code class="text-blurple">data.json</code> export to see your stats</p>
+      <label id="drop-zone" class="drop-zone block cursor-pointer rounded-2xl border-2 border-dashed border-blurple p-10 hover:bg-blurple/10 transition-all">
+        <input type="file" id="file-input" accept=".json" class="hidden" />
+        <div class="text-blurple font-bold text-lg mb-1">Drop your data.json here</div>
+        <div class="text-discord-muted text-sm">or click to browse</div>
+      </label>
+      <button id="use-demo-btn" class="mt-4 text-xs text-discord-muted underline hover:text-white transition-colors">
+        Use bundled data.json
+      </button>
+      <p id="upload-error" class="mt-3 text-red-400 text-sm hidden"></p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════ MAIN APP ═══════════════════════ -->
+  <div id="app" class="hidden">
+
+    <!-- NAV -->
+    <nav class="nav-bar sticky top-0 z-40 flex items-center justify-between px-6 py-3">
+      <div class="flex items-center gap-3">
+        <div class="blurple-dot w-3 h-3 rounded-full bg-blurple animate-pulse"></div>
+        <span class="font-black text-white text-lg tracking-tight">Discord Wrapped</span>
+        <span id="nav-username" class="text-discord-muted text-sm font-medium"></span>
+      </div>
+      <div class="flex items-center gap-2">
+        <button id="wrapped-btn" class="wrapped-btn px-4 py-2 rounded-xl font-bold text-sm">
+          ✨ View My Wrapped
+        </button>
+        <button id="new-file-btn" class="px-3 py-2 rounded-xl text-discord-muted hover:text-white hover:bg-white/10 text-sm transition-all">
+          ↑ New File
+        </button>
+      </div>
+    </nav>
+
+    <!-- FILTERS BAR -->
+    <div class="filters-bar px-6 py-3 flex flex-wrap items-center gap-3">
+      <span class="text-discord-muted text-sm font-medium">Filter:</span>
+      <select id="filter-year" class="filter-select">
+        <option value="all">All Years</option>
+      </select>
+      <select id="filter-month" class="filter-select">
+        <option value="all">All Months</option>
+      </select>
+      <select id="filter-type" class="filter-select">
+        <option value="all">All Activity</option>
+        <option value="channels">Channels Only</option>
+        <option value="dms">DMs Only</option>
+        <option value="groups">Group DMs</option>
+      </select>
+      <div id="active-filter-badge" class="hidden filter-badge text-xs px-3 py-1 rounded-full font-medium">
+        Filtered View
+      </div>
+      <button id="reset-filters-btn" class="hidden text-xs text-discord-muted hover:text-white underline transition-colors ml-auto">
+        Reset Filters
+      </button>
+    </div>
+
+    <!-- HERO BANNER -->
+    <div id="hero-banner" class="hero-banner px-6 py-12 text-center relative overflow-hidden">
+      <div class="hero-bg-orb orb-1"></div>
+      <div class="hero-bg-orb orb-2"></div>
+      <div class="relative z-10">
+        <div id="hero-avatar" class="hero-avatar mx-auto mb-4"></div>
+        <h1 class="text-5xl font-black text-white mb-2">
+          <span id="hero-username">Your</span>'s <span class="gradient-text">Wrapped</span>
+        </h1>
+        <p class="text-discord-muted text-lg mb-6" id="hero-tagline">Your Discord activity, all in one place.</p>
+        <button id="hero-wrapped-btn" class="wrapped-btn px-6 py-3 rounded-2xl font-bold text-base">
+          ✨ View Story Mode
+        </button>
+      </div>
+    </div>
+
+    <!-- ── SECTION: OVERVIEW ── -->
+    <section id="sec-overview" class="px-6 py-8">
+      <div class="section-header mb-6">
+        <h2 class="text-2xl font-black text-white mb-1">Overview</h2>
+        <p class="text-discord-muted" id="overview-subtitle">Here's everything you did on Discord.</p>
+      </div>
+
+      <!-- Stat cards grid -->
+      <div id="stat-cards" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8"></div>
+
+      <!-- Personality card -->
+      <div id="personality-card" class="personality-card rounded-2xl p-6 mb-8 relative overflow-hidden">
+        <div class="personality-bg-icon absolute right-6 top-4 text-8xl opacity-10 select-none" id="personality-icon-bg"></div>
+        <div class="relative z-10">
+          <div class="text-xs font-bold uppercase tracking-widest text-discord-muted mb-1">Your Discord Personality</div>
+          <div class="text-3xl font-black text-white mb-2" id="personality-title">—</div>
+          <div class="text-discord-muted mb-4" id="personality-desc">—</div>
+          <div id="personality-stats" class="flex flex-wrap gap-3"></div>
+        </div>
+      </div>
+
+      <!-- Data quality panel -->
+      <div id="quality-panel" class="quality-panel rounded-xl p-4 flex flex-wrap gap-6 text-sm"></div>
+    </section>
+
+    <!-- ── SECTION: HEATMAP ── -->
+    <section id="sec-heatmap" class="px-6 py-8">
+      <div class="section-header mb-6">
+        <h2 class="text-2xl font-black text-white mb-1">Activity Heatmap</h2>
+        <p class="text-discord-muted">Your Discord heartbeat, day by day.</p>
+      </div>
+      <div class="card rounded-2xl p-6">
+        <div class="flex items-center justify-between mb-4 flex-wrap gap-3">
+          <div class="flex gap-3">
+            <div id="streak-current" class="streak-badge px-4 py-2 rounded-xl text-sm font-bold"></div>
+            <div id="streak-longest" class="streak-badge px-4 py-2 rounded-xl text-sm font-bold"></div>
+          </div>
+          <div class="flex items-center gap-2 text-xs text-discord-muted">
+            <span>Less</span>
+            <div class="flex gap-0.5">
+              <div class="heatmap-legend-cell" style="--heat:0"></div>
+              <div class="heatmap-legend-cell" style="--heat:1"></div>
+              <div class="heatmap-legend-cell" style="--heat:2"></div>
+              <div class="heatmap-legend-cell" style="--heat:3"></div>
+              <div class="heatmap-legend-cell" style="--heat:4"></div>
+            </div>
+            <span>More</span>
+          </div>
+        </div>
+        <div id="heatmap-container" class="overflow-x-auto">
+          <div id="heatmap" class="heatmap-grid"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── SECTION: CHARTS ── -->
+    <section id="sec-charts" class="px-6 py-8">
+      <div class="section-header mb-6">
+        <h2 class="text-2xl font-black text-white mb-1">Activity Charts</h2>
+        <p class="text-discord-muted">Every hour, day, and month—visualized.</p>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Hourly -->
+        <div class="card rounded-2xl p-6">
+          <h3 class="font-bold text-white mb-4">Hourly Activity</h3>
+          <div class="chart-wrap"><canvas id="chart-hourly"></canvas></div>
+        </div>
+        <!-- Daily (weekly pattern) -->
+        <div class="card rounded-2xl p-6">
+          <h3 class="font-bold text-white mb-4">Day of Week</h3>
+          <div class="chart-wrap"><canvas id="chart-daily"></canvas></div>
+        </div>
+        <!-- Monthly -->
+        <div class="card rounded-2xl p-6">
+          <h3 class="font-bold text-white mb-4">Monthly Activity</h3>
+          <div class="chart-wrap"><canvas id="chart-monthly"></canvas></div>
+        </div>
+        <!-- Yearly -->
+        <div class="card rounded-2xl p-6">
+          <h3 class="font-bold text-white mb-4">Activity by Year</h3>
+          <div class="chart-wrap"><canvas id="chart-yearly"></canvas></div>
+        </div>
+        <!-- Top Channels -->
+        <div class="card rounded-2xl p-6">
+          <h3 class="font-bold text-white mb-4">Top Channels</h3>
+          <div class="chart-wrap"><canvas id="chart-channels"></canvas></div>
+        </div>
+        <!-- Top DMs -->
+        <div class="card rounded-2xl p-6">
+          <h3 class="font-bold text-white mb-4">Top DMs</h3>
+          <div class="chart-wrap"><canvas id="chart-dms"></canvas></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── SECTION: FUN STUFF ── -->
+    <section id="sec-fun" class="px-6 py-8">
+      <div class="section-header mb-6">
+        <h2 class="text-2xl font-black text-white mb-1">✨ The Fun Stuff</h2>
+        <p class="text-discord-muted">The stats they don't teach in school.</p>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+        <!-- Emoji Addiction -->
+        <div class="card rounded-2xl p-6 col-span-1">
+          <h3 class="font-bold text-white mb-1">Your Emoji Addiction 🎭</h3>
+          <p class="text-discord-muted text-xs mb-4">The emojis that define you</p>
+          <div id="emoji-leaderboard" class="space-y-2"></div>
+        </div>
+
+        <!-- Word Cloud card -->
+        <div class="card rounded-2xl p-6 col-span-1">
+          <h3 class="font-bold text-white mb-1">Your Vocabulary 📚</h3>
+          <p class="text-discord-muted text-xs mb-4">Words you can't stop saying</p>
+          <div id="word-cloud" class="word-cloud-container"></div>
+          <div id="word-stats" class="mt-4 space-y-2 text-sm"></div>
+        </div>
+
+        <!-- Chatting Habits -->
+        <div class="card rounded-2xl p-6 col-span-1">
+          <h3 class="font-bold text-white mb-1">Your Chatting Habits 🕐</h3>
+          <p class="text-discord-muted text-xs mb-4">When you're most alive</p>
+          <div id="habits-stats" class="space-y-3"></div>
+        </div>
+
+        <!-- Records -->
+        <div class="card rounded-2xl p-6 col-span-1">
+          <h3 class="font-bold text-white mb-1">Your Discord Records 🏆</h3>
+          <p class="text-discord-muted text-xs mb-4">Peak Discord moments</p>
+          <div id="records-stats" class="space-y-3"></div>
+        </div>
+
+        <!-- Typing Energy -->
+        <div class="card rounded-2xl p-6 col-span-1">
+          <h3 class="font-bold text-white mb-1">Typing Energy ⚡</h3>
+          <p class="text-discord-muted text-xs mb-4">How loud is your keyboard?</p>
+          <div id="energy-card"></div>
+        </div>
+
+        <!-- Cursed Words -->
+        <div class="card rounded-2xl p-6 col-span-1">
+          <h3 class="font-bold text-white mb-1">Your... Colorful Language 🤬</h3>
+          <p class="text-discord-muted text-xs mb-4">We're not judging</p>
+          <div id="cursed-stats" class="space-y-2"></div>
+        </div>
+
+      </div>
+
+      <!-- Custom Emojis chart -->
+      <div class="card rounded-2xl p-6 mt-6">
+        <h3 class="font-bold text-white mb-4">Custom Emoji Love 🎉</h3>
+        <div class="chart-wrap"><canvas id="chart-custom-emojis"></canvas></div>
+      </div>
+
+      <!-- Top Guilds chart -->
+      <div class="card rounded-2xl p-6 mt-6">
+        <h3 class="font-bold text-white mb-4">Your Top Servers 🏠</h3>
+        <div class="chart-wrap"><canvas id="chart-guilds"></canvas></div>
+      </div>
+
+      <!-- App behavior stats -->
+      <div class="card rounded-2xl p-6 mt-6">
+        <h3 class="font-bold text-white mb-4">Behind the Scenes 🔬</h3>
+        <p class="text-discord-muted text-xs mb-4">Discord knows more than you think</p>
+        <div id="behavior-stats" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
+      </div>
+
+      <!-- Links -->
+      <div class="card rounded-2xl p-6 mt-6">
+        <h3 class="font-bold text-white mb-4">Your Link History 🔗</h3>
+        <div id="links-list" class="space-y-2"></div>
+      </div>
+    </section>
+
+  </div><!-- /#app -->
+
+  <!-- ═══════════════════════ WRAPPED STORY MODE ═══════════════════════ -->
+  <div id="wrapped-modal" class="fixed inset-0 z-50 hidden">
+    <div id="wrapped-bg" class="absolute inset-0 bg-black/90 backdrop-blur-sm"></div>
+    <div class="relative z-10 h-full flex flex-col items-center justify-center">
+      <!-- Slides container -->
+      <div id="wrapped-slides" class="wrapped-slide-container">
+        <!-- Slides injected by JS -->
+      </div>
+      <!-- Controls -->
+      <div class="flex items-center gap-6 mt-8">
+        <button id="wrapped-prev" class="wrapped-ctrl-btn" title="Previous">←</button>
+        <div id="wrapped-dots" class="flex gap-2"></div>
+        <button id="wrapped-next" class="wrapped-ctrl-btn" title="Next">→</button>
+      </div>
+      <div class="flex gap-4 mt-4">
+        <button id="wrapped-restart" class="text-discord-muted text-sm hover:text-white transition-colors">↺ Restart</button>
+        <button id="wrapped-export" class="text-discord-muted text-sm hover:text-white transition-colors">⬇ Export PNG</button>
+        <button id="wrapped-close" class="text-discord-muted text-sm hover:text-white transition-colors">✕ Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

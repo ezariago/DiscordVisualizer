@@ -1,0 +1,10 @@
+# Private Discord data — never commit
+data.json
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.idea/
+.vscode/

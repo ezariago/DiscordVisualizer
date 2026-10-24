@@ -1,0 +1,603 @@
+/* ═══════════════════════════════════════════
+   Discord Wrapped — styles.css
+   Discord dark theme + blurple accents
+═══════════════════════════════════════════ */
+
+:root {
+  --discord-bg:       #0e0f13;
+  --discord-surface:  #1a1c23;
+  --discord-elevated: #222530;
+  --discord-border:   #2e3140;
+  --discord-text:     #dcddde;
+  --discord-muted:    #8b8fa8;
+  --blurple:          #5865F2;
+  --blurple-hover:    #4752c4;
+  --blurple-glow:     rgba(88,101,242,0.35);
+  --green:            #57f287;
+  --yellow:           #fee75c;
+  --red:              #ed4245;
+  --purple:           #9b59b6;
+  --fuchsia:          #eb459e;
+  --gradient-a:       #5865F2;
+  --gradient-b:       #9b59b6;
+  --gradient-c:       #eb459e;
+  --card-radius:      1rem;
+  --transition:       all .25s cubic-bezier(.4,0,.2,1);
+}
+
+/* ── Reset & base ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+  background: var(--discord-bg);
+  color: var(--discord-text);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* Tailwind custom colors — also defined here for fallback */
+.bg-discord-bg     { background: var(--discord-bg); }
+.bg-discord-surface{ background: var(--discord-surface); }
+.text-discord-text { color: var(--discord-text); }
+.text-discord-muted{ color: var(--discord-muted); }
+.text-blurple      { color: var(--blurple); }
+
+/* ── Gradient text ── */
+.gradient-text {
+  background: linear-gradient(135deg, var(--gradient-a), var(--gradient-b), var(--gradient-c));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ══════════════════════════════
+   UPLOAD OVERLAY
+══════════════════════════════ */
+.upload-card {
+  background: var(--discord-surface);
+  border: 1px solid var(--discord-border);
+  border-radius: 1.5rem;
+  padding: 2.5rem;
+  box-shadow: 0 0 80px rgba(88,101,242,.15);
+}
+
+.drop-zone {
+  transition: var(--transition);
+  border-color: var(--discord-border) !important;
+}
+.drop-zone.drag-over,
+.drop-zone:hover {
+  border-color: var(--blurple) !important;
+  background: rgba(88,101,242,.08) !important;
+}
+
+/* ══════════════════════════════
+   HERO BANNER
+══════════════════════════════ */
+.hero-banner {
+  background: var(--discord-surface);
+  border-bottom: 1px solid var(--discord-border);
+}
+
+.hero-bg-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+}
+.orb-1 {
+  width: 400px; height: 400px;
+  background: rgba(88,101,242,.18);
+  top: -120px; left: -80px;
+}
+.orb-2 {
+  width: 320px; height: 320px;
+  background: rgba(235,69,158,.12);
+  bottom: -100px; right: -60px;
+}
+
+.hero-avatar {
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  background: var(--discord-elevated);
+  border: 3px solid var(--blurple);
+  overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2rem;
+  box-shadow: 0 0 24px var(--blurple-glow);
+}
+.hero-avatar img {
+  width: 100%; height: 100%; object-fit: cover;
+}
+
+/* ══════════════════════════════
+   NAV
+══════════════════════════════ */
+.nav-bar {
+  background: rgba(14,15,19,.8);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--discord-border);
+}
+
+.wrapped-btn {
+  background: linear-gradient(135deg, var(--blurple), var(--purple));
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: 0 0 20px var(--blurple-glow);
+}
+.wrapped-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 32px var(--blurple-glow);
+}
+
+/* ══════════════════════════════
+   FILTERS
+══════════════════════════════ */
+.filters-bar {
+  background: var(--discord-surface);
+  border-bottom: 1px solid var(--discord-border);
+}
+
+.filter-select {
+  background: var(--discord-elevated);
+  border: 1px solid var(--discord-border);
+  color: var(--discord-text);
+  border-radius: .6rem;
+  padding: .3rem .75rem;
+  font-size: .8rem;
+  cursor: pointer;
+  outline: none;
+  transition: var(--transition);
+}
+.filter-select:focus, .filter-select:hover {
+  border-color: var(--blurple);
+}
+
+.filter-badge {
+  background: rgba(88,101,242,.2);
+  color: var(--blurple);
+  border: 1px solid rgba(88,101,242,.4);
+}
+
+/* ══════════════════════════════
+   CARDS
+══════════════════════════════ */
+.card {
+  background: var(--discord-surface);
+  border: 1px solid var(--discord-border);
+  transition: var(--transition);
+}
+.card:hover {
+  border-color: rgba(88,101,242,.4);
+  box-shadow: 0 0 24px rgba(88,101,242,.08);
+}
+
+/* ── Stat cards ── */
+.stat-card {
+  background: var(--discord-surface);
+  border: 1px solid var(--discord-border);
+  border-radius: var(--card-radius);
+  padding: 1.25rem;
+  position: relative;
+  overflow: hidden;
+  transition: var(--transition);
+  cursor: default;
+}
+.stat-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, transparent 60%, rgba(88,101,242,.06));
+  pointer-events: none;
+}
+.stat-card:hover {
+  border-color: rgba(88,101,242,.5);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(88,101,242,.12);
+}
+.stat-card .stat-icon {
+  font-size: 1.6rem;
+  margin-bottom: .5rem;
+}
+.stat-card .stat-value {
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: white;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+.stat-card .stat-label {
+  font-size: .75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--discord-muted);
+  margin-top: .2rem;
+}
+.stat-card .stat-quip {
+  font-size: .78rem;
+  color: var(--discord-muted);
+  margin-top: .5rem;
+  font-style: italic;
+}
+.stat-card .stat-accent {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--blurple), var(--purple));
+  border-radius: var(--card-radius) var(--card-radius) 0 0;
+}
+
+/* ── Personality card ── */
+.personality-card {
+  background: linear-gradient(135deg, var(--discord-surface) 0%, rgba(88,101,242,.12) 100%);
+  border: 1px solid rgba(88,101,242,.3);
+}
+.personality-stat-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  background: rgba(88,101,242,.15);
+  border: 1px solid rgba(88,101,242,.3);
+  border-radius: 999px;
+  padding: .3rem .8rem;
+  font-size: .8rem;
+  color: #a5b4fc;
+  font-weight: 600;
+}
+
+/* ── Quality panel ── */
+.quality-panel {
+  background: rgba(87,242,135,.05);
+  border: 1px solid rgba(87,242,135,.2);
+}
+.quality-item {
+  display: flex;
+  flex-direction: column;
+  gap: .1rem;
+}
+.quality-item .q-label {
+  font-size: .7rem;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--discord-muted);
+}
+.quality-item .q-value {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--green);
+}
+
+/* ══════════════════════════════
+   HEATMAP
+══════════════════════════════ */
+.heatmap-grid {
+  display: grid;
+  grid-auto-flow: column;
+  gap: 3px;
+  padding: .5rem 0;
+  min-width: max-content;
+}
+
+.heatmap-cell {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  background: var(--discord-elevated);
+  cursor: pointer;
+  transition: transform .1s, box-shadow .1s;
+  position: relative;
+}
+.heatmap-cell:hover {
+  transform: scale(1.4);
+  z-index: 10;
+}
+.heatmap-cell[data-level="1"] { background: rgba(88,101,242,.3); }
+.heatmap-cell[data-level="2"] { background: rgba(88,101,242,.55); }
+.heatmap-cell[data-level="3"] { background: rgba(88,101,242,.75); }
+.heatmap-cell[data-level="4"] { background: rgba(88,101,242,1); box-shadow: 0 0 6px var(--blurple-glow); }
+
+.heatmap-legend-cell {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  background: rgba(88,101,242, calc(var(--heat) * 0.25));
+}
+.heatmap-legend-cell:first-child { background: var(--discord-elevated); }
+
+.heatmap-month-label {
+  font-size: 10px;
+  color: var(--discord-muted);
+  text-align: center;
+}
+
+.heatmap-tooltip {
+  position: fixed;
+  background: var(--discord-elevated);
+  border: 1px solid var(--discord-border);
+  border-radius: .5rem;
+  padding: .5rem .75rem;
+  font-size: .75rem;
+  pointer-events: none;
+  z-index: 100;
+  box-shadow: 0 4px 16px rgba(0,0,0,.4);
+  max-width: 200px;
+  white-space: nowrap;
+}
+.heatmap-tooltip strong { color: white; display: block; margin-bottom: .15rem; }
+
+.streak-badge {
+  background: rgba(88,101,242,.15);
+  border: 1px solid rgba(88,101,242,.3);
+  color: #a5b4fc;
+}
+
+/* ══════════════════════════════
+   CHARTS
+══════════════════════════════ */
+.chart-wrap {
+  position: relative;
+  height: 220px;
+}
+
+/* ══════════════════════════════
+   FUN STUFF
+══════════════════════════════ */
+
+/* Emoji leaderboard */
+.emoji-row {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+}
+.emoji-rank {
+  width: 20px;
+  text-align: right;
+  font-size: .7rem;
+  color: var(--discord-muted);
+  flex-shrink: 0;
+}
+.emoji-char { font-size: 1.3rem; flex-shrink: 0; }
+.emoji-bar-wrap { flex: 1; background: var(--discord-elevated); border-radius: 999px; height: 6px; overflow: hidden; }
+.emoji-bar { height: 100%; background: linear-gradient(90deg, var(--blurple), var(--purple)); border-radius: 999px; transition: width .6s ease; }
+.emoji-count { font-size: .75rem; color: var(--discord-muted); flex-shrink: 0; min-width: 30px; text-align: right; }
+
+/* Word cloud */
+.word-cloud-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .4rem;
+  min-height: 100px;
+}
+.word-tag {
+  display: inline-block;
+  border-radius: 999px;
+  padding: .2rem .65rem;
+  font-weight: 700;
+  cursor: default;
+  transition: var(--transition);
+}
+.word-tag:hover { transform: scale(1.1); }
+
+/* Stat rows */
+.stat-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: .4rem 0;
+  border-bottom: 1px solid var(--discord-border);
+}
+.stat-row:last-child { border-bottom: none; }
+.stat-row .sr-label { color: var(--discord-muted); font-size: .82rem; }
+.stat-row .sr-value { color: white; font-weight: 700; font-size: .9rem; }
+
+/* Energy card */
+.energy-tier {
+  border-radius: 1rem;
+  padding: 1rem;
+  text-align: center;
+  border: 1px solid;
+}
+.energy-tier h4 { font-size: 1.4rem; font-weight: 900; margin-bottom: .3rem; }
+.energy-tier p { font-size: .78rem; opacity: .8; }
+.energy-formula { font-size: .72rem; color: var(--discord-muted); margin-top: .6rem; }
+
+/* Record rows */
+.record-row {
+  display: flex;
+  align-items: flex-start;
+  gap: .75rem;
+  padding: .5rem 0;
+  border-bottom: 1px solid var(--discord-border);
+}
+.record-row:last-child { border-bottom: none; }
+.record-icon { font-size: 1.2rem; flex-shrink: 0; }
+.record-content .rc-label { font-size: .72rem; text-transform: uppercase; letter-spacing: .05em; color: var(--discord-muted); }
+.record-content .rc-value { font-size: .92rem; font-weight: 700; color: white; }
+
+/* Behavior stats */
+.behavior-stat {
+  background: var(--discord-elevated);
+  border-radius: .75rem;
+  padding: .75rem 1rem;
+  text-align: center;
+}
+.behavior-stat .bs-val { font-size: 1.4rem; font-weight: 900; color: white; }
+.behavior-stat .bs-lbl { font-size: .7rem; color: var(--discord-muted); }
+
+/* ══════════════════════════════
+   WRAPPED STORY
+══════════════════════════════ */
+.wrapped-slide-container {
+  width: min(480px, 92vw);
+  height: min(640px, 75vh);
+  position: relative;
+  border-radius: 1.5rem;
+  overflow: hidden;
+}
+
+.wrapped-slide {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem;
+  text-align: center;
+  opacity: 0;
+  transform: scale(.96) translateY(12px);
+  transition: opacity .4s ease, transform .4s ease;
+  pointer-events: none;
+}
+.wrapped-slide.active {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+  pointer-events: auto;
+}
+.wrapped-slide.exit {
+  opacity: 0;
+  transform: scale(1.02) translateY(-12px);
+}
+
+.slide-title {
+  font-size: clamp(1rem, 4vw, 1.25rem);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: rgba(255,255,255,.6);
+  margin-bottom: .5rem;
+}
+.slide-number {
+  font-size: clamp(3rem, 12vw, 5rem);
+  font-weight: 900;
+  color: white;
+  line-height: 1;
+  margin: .5rem 0;
+}
+.slide-subtitle {
+  font-size: clamp(.85rem, 3vw, 1rem);
+  color: rgba(255,255,255,.75);
+  margin-top: .75rem;
+  max-width: 340px;
+}
+.slide-emoji {
+  font-size: clamp(3rem, 10vw, 4rem);
+  margin-bottom: .75rem;
+}
+
+.wrapped-ctrl-btn {
+  width: 48px; height: 48px;
+  background: rgba(255,255,255,.1);
+  border: 1px solid rgba(255,255,255,.2);
+  border-radius: 50%;
+  color: white;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex; align-items: center; justify-content: center;
+}
+.wrapped-ctrl-btn:hover { background: rgba(255,255,255,.2); }
+
+.wrapped-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.3);
+  cursor: pointer;
+  transition: var(--transition);
+}
+.wrapped-dot.active {
+  background: white;
+  width: 20px;
+  border-radius: 4px;
+}
+
+/* ══════════════════════════════
+   ANIMATIONS
+══════════════════════════════ */
+@keyframes countUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes slideInUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes heatmapReveal {
+  from { opacity: 0; transform: scaleX(0); }
+  to   { opacity: 1; transform: scaleX(1); }
+}
+
+.anim-count { animation: countUp .5s ease forwards; }
+.anim-fade  { animation: fadeIn .6s ease forwards; }
+.anim-up    { animation: slideInUp .5s ease forwards; }
+
+/* Stagger delays */
+.delay-1 { animation-delay: .1s; opacity: 0; }
+.delay-2 { animation-delay: .2s; opacity: 0; }
+.delay-3 { animation-delay: .3s; opacity: 0; }
+.delay-4 { animation-delay: .4s; opacity: 0; }
+.delay-5 { animation-delay: .5s; opacity: 0; }
+
+/* ══════════════════════════════
+   SCROLLBAR
+══════════════════════════════ */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--discord-bg); }
+::-webkit-scrollbar-thumb { background: var(--discord-border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--blurple); }
+
+/* ══════════════════════════════
+   TOOLTIP (heatmap)
+══════════════════════════════ */
+#hm-tooltip {
+  position: fixed;
+  pointer-events: none;
+  z-index: 999;
+  transition: opacity .1s;
+}
+
+/* ══════════════════════════════
+   SECTION / LAYOUT
+══════════════════════════════ */
+#app section,
+.filters-bar,
+.hero-banner {
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+}
+
+/* Hero and filters span full width bg but center content */
+.nav-bar { max-width: 100%; }
+
+#app > .filters-bar {
+  max-width: 100%;
+  /* keep full-width background stripe */
+}
+
+/* Subtle top border between sections */
+#app section + section {
+  border-top: 1px solid var(--discord-border);
+}
+
+/* ══════════════════════════════
+   MISC UTILITIES
+══════════════════════════════ */
+.hidden { display: none !important; }
+code {
+  background: var(--discord-elevated);
+  padding: .1rem .3rem;
+  border-radius: .3rem;
+  font-size: .9em;
+}
